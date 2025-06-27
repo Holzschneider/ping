@@ -68,8 +68,17 @@ function init() {
     // Add event listeners
     document.getElementById('start-button').addEventListener('click', startGame);
     canvas.addEventListener('mousemove', movePaddle);
+    document.getElementById('style-select').addEventListener('change', changeStyle);
 
     // Initial render
+    render();
+}
+
+// Change visual style
+function changeStyle(e) {
+    document.body.classList.remove('retro', 'msdos', 'hacker');
+    document.body.classList.add(e.target.value);
+    // Re-render to apply new colors immediately
     render();
 }
 
@@ -206,12 +215,19 @@ function updateBall() {
 
 // Render the game
 function render() {
+    // Get colors from CSS variables
+    const styles = getComputedStyle(document.body);
+    const bgColor = styles.getPropertyValue('--bg-color');
+    const paddleColor = styles.getPropertyValue('--paddle-color');
+    const ballColor = styles.getPropertyValue('--ball-color');
+    const lineColor = styles.getPropertyValue('--border-color');
+
     // Clear the canvas
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw center line
-    ctx.strokeStyle = '#fff';
+    ctx.strokeStyle = lineColor || paddleColor;
     ctx.setLineDash([10, 15]);
     ctx.beginPath();
     ctx.moveTo(canvas.width / 2, 0);
@@ -220,7 +236,7 @@ function render() {
     ctx.setLineDash([]);
 
     // Draw paddles
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = paddleColor;
     ctx.fillRect(0, playerPaddleY, PADDLE_WIDTH, PADDLE_HEIGHT);
     ctx.fillRect(canvas.width - PADDLE_WIDTH, aiPaddleY, PADDLE_WIDTH, PADDLE_HEIGHT);
 
@@ -230,13 +246,15 @@ function render() {
             // Calculate opacity based on position in trail (older = more transparent)
             // i=0 is oldest, i=length-1 is newest
             const opacity = (i + 1) / ballTrail.length * 0.7; // Max opacity of trail is 0.7
-            ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+            ctx.globalAlpha = opacity;
+            ctx.fillStyle = ballColor;
             ctx.fillRect(ballTrail[i].x, ballTrail[i].y, BALL_SIZE, BALL_SIZE);
+            ctx.globalAlpha = 1;
         }
     }
 
     // Draw ball (full opacity)
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = ballColor;
     ctx.fillRect(ballX, ballY, BALL_SIZE, BALL_SIZE);
 }
 
