@@ -9,6 +9,7 @@ A retro-styled Pong game built with HTML5 Canvas and JavaScript. Experience the 
 - **Mouse Controls**: Smooth paddle movement using mouse input
 - **Visual Effects**: Ball trail effects for enhanced visual appeal
 - **Retro Styling**: Classic black and white design with pixelated rendering
+- **Theme Selector**: Choose between Retro, MS-DOS, and Hacker color schemes
 - **Responsive Scoring**: Real-time score tracking
 - **Ball Physics**: Realistic collision detection and ball acceleration
 
