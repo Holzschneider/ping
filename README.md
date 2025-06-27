@@ -11,6 +11,7 @@ A retro-styled Pong game built with HTML5 Canvas and JavaScript. Experience the 
 - **Retro Styling**: Classic black and white design with pixelated rendering
 - **Responsive Scoring**: Real-time score tracking
 - **Ball Physics**: Realistic collision detection and ball acceleration
+- **Multiplayer Mode**: Invite a friend with a magic link using WebRTC/PeerJS
 
 ## Getting Started
 
@@ -29,6 +30,7 @@ A retro-styled Pong game built with HTML5 Canvas and JavaScript. Experience the 
 1. Open `index.html` in your web browser
 2. The game will load automatically
 3. Click the "START GAME" button to begin playing
+4. To play with a friend, click **SHARE** and send them the magic link
 
 ## How to Play
 
