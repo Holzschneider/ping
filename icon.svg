@@ -1,0 +1,15 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="256" height="256" rx="48" fill="#111"/>
+    <!-- Center dashed line -->
+    <g stroke="#39FF14" stroke-width="12">
+        <line x1="128" y1="32" x2="128" y2="56" />
+        <line x1="128" y1="72" x2="128" y2="96" />
+        <line x1="128" y1="112" x2="128" y2="136" />
+        <line x1="128" y1="152" x2="128" y2="176" />
+        <line x1="128" y1="192" x2="128" y2="216" />
+    </g>
+    <!-- Left paddle -->
+    <rect x="44" y="96" width="16" height="64" rx="4" fill="#39FF14"/>
+    <!-- Ball -->
+    <rect x="160" y="120" width="16" height="16" rx="3" fill="#39FF14"/>
+</svg>
