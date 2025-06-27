@@ -20,10 +20,45 @@ let gameRunning = false;
 let lastTime = 0;
 let ballTrail = []; // Array to store previous ball positions
 
+// Networking variables
+let peer;
+let conn;
+let isClient = false;
+let peerId;
+
 // Initialize the game
 function init() {
     canvas = document.getElementById('game-canvas');
     ctx = canvas.getContext('2d');
+
+    const params = new URLSearchParams(window.location.search);
+    const hostId = params.get('host');
+    isClient = !!hostId;
+
+    peer = new Peer();
+    peer.on('open', id => {
+        peerId = id;
+        if (isClient) {
+            conn = peer.connect(hostId);
+            conn.on('open', () => {
+                startGame();
+            });
+            conn.on('data', handleHostData);
+            document.getElementById('share-button').style.display = 'none';
+            document.getElementById('share-link').style.display = 'none';
+        } else {
+            const link = `${location.origin}${location.pathname}?host=${id}`;
+            const shareLinkEl = document.getElementById('share-link');
+            shareLinkEl.innerHTML = `<a href="${link}">${link}</a>`;
+            document.getElementById('share-button').addEventListener('click', () => {
+                navigator.clipboard.writeText(link);
+            });
+            peer.on('connection', c => {
+                conn = c;
+                conn.on('data', handleClientData);
+            });
+        }
+    });
 
     // Set initial positions
     resetBall();
@@ -70,11 +105,20 @@ function movePaddle(e) {
     const mouseY = e.clientY - rect.top;
 
     // Keep paddle within canvas bounds
-    playerPaddleY = Math.max(0, Math.min(canvas.height - PADDLE_HEIGHT, mouseY - PADDLE_HEIGHT / 2));
+    const newY = Math.max(0, Math.min(canvas.height - PADDLE_HEIGHT, mouseY - PADDLE_HEIGHT / 2));
+    if (isClient) {
+        aiPaddleY = newY;
+        if (conn && conn.open) {
+            conn.send({type: 'paddle', y: aiPaddleY});
+        }
+    } else {
+        playerPaddleY = newY;
+    }
 }
 
 // Update AI paddle position
 function updateAI() {
+    if (conn && conn.open) return;
     // AI tries to follow the ball with some delay/error
     const targetY = ballY - PADDLE_HEIGHT / 2;
     const aiReactionSpeed = PADDLE_SPEED * AI_DIFFICULTY;
@@ -91,6 +135,7 @@ function updateAI() {
 
 // Update ball position and check for collisions
 function updateBall() {
+    if (isClient) return;
     // Store current position in trail
     ballTrail.push({x: ballX, y: ballY});
 
@@ -147,6 +192,16 @@ function updateBall() {
         // Clear trail on reset
         ballTrail = [];
     }
+
+    if (conn && conn.open) {
+        conn.send({
+            type: 'state',
+            ballX, ballY,
+            playerScore, aiScore,
+            playerPaddleY, aiPaddleY,
+            ballTrail
+        });
+    }
 }
 
 // Render the game
@@ -185,6 +240,25 @@ function render() {
     ctx.fillRect(ballX, ballY, BALL_SIZE, BALL_SIZE);
 }
 
+function handleClientData(data) {
+    if (data.type === 'paddle') {
+        aiPaddleY = data.y;
+    }
+}
+
+function handleHostData(data) {
+    if (data.type === 'state') {
+        ballX = data.ballX;
+        ballY = data.ballY;
+        playerScore = data.playerScore;
+        aiScore = data.aiScore;
+        playerPaddleY = data.playerPaddleY;
+        aiPaddleY = data.aiPaddleY;
+        ballTrail = data.ballTrail;
+        updateScore();
+    }
+}
+
 // Main game loop
 function gameLoop(timestamp) {
     if (!gameRunning) return;
@@ -194,7 +268,9 @@ function gameLoop(timestamp) {
     lastTime = timestamp;
 
     // Update game state
-    updateAI();
+    if (!isClient) {
+        updateAI();
+    }
     updateBall();
 
     // Render the game
