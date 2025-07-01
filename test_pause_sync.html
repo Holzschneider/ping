@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Pause Synchronization</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background-color: #000;
+            color: #fff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #fff;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 5px;
+            background-color: #333;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Pause Synchronization</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Pause/Resume Message Handling</h2>
+        <p>This tests the pause synchronization logic without actual networking:</p>
+        <div class="result">
+            <button onclick="testHostPause()">Test Host Pause</button>
+            <button onclick="testHostResume()">Test Host Resume</button>
+            <button onclick="testClientPause()">Test Client Pause</button>
+            <button onclick="testClientResume()">Test Client Resume</button>
+        </div>
+        <div id="test-output" class="result">
+            Ready to test...
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Open Actual Game</h2>
+        <p>Test the actual implementation with two browser windows:</p>
+        <div class="result">
+            <a href="index.html" target="_blank" style="color: #00ff00;">Open Host Game</a><br>
+            <span style="color: #ffff00;">1. Click "INVITE PLAYER" to get the link</span><br>
+            <span style="color: #ffff00;">2. Open the invite link in another window</span><br>
+            <span style="color: #ffff00;">3. Test pause/resume from both windows</span>
+        </div>
+    </div>
+
+    <script>
+        // Mock game state for testing
+        let gameRunning = true;
+        let gamePaused = false;
+        let lastTime = 0;
+
+        function log(message) {
+            const output = document.getElementById('test-output');
+            output.innerHTML += message + '<br>';
+        }
+
+        function clearLog() {
+            document.getElementById('test-output').innerHTML = '';
+        }
+
+        // Mock the pause/resume functions
+        function pauseGame() {
+            if (gameRunning && !gamePaused) {
+                gamePaused = true;
+                log('✓ Game paused locally');
+                log('✓ Pause message would be sent to opponent');
+                return true;
+            }
+            return false;
+        }
+
+        function resumeGame() {
+            if (gameRunning && gamePaused) {
+                gamePaused = false;
+                lastTime = 0;
+                log('✓ Game resumed locally');
+                log('✓ Resume message would be sent to opponent');
+                return true;
+            }
+            return false;
+        }
+
+        // Mock the data handlers
+        function handleClientData(data) {
+            if (data.type === 'pause') {
+                if (gameRunning && !gamePaused) {
+                    gamePaused = true;
+                    log('✓ Host received pause from client - game paused');
+                }
+            } else if (data.type === 'resume') {
+                if (gameRunning && gamePaused) {
+                    gamePaused = false;
+                    lastTime = 0;
+                    log('✓ Host received resume from client - game resumed');
+                }
+            }
+        }
+
+        function handleHostData(data) {
+            if (data.type === 'pause') {
+                if (gameRunning && !gamePaused) {
+                    gamePaused = true;
+                    log('✓ Client received pause from host - game paused');
+                }
+            } else if (data.type === 'resume') {
+                if (gameRunning && gamePaused) {
+                    gamePaused = false;
+                    lastTime = 0;
+                    log('✓ Client received resume from host - game resumed');
+                }
+            }
+        }
+
+        function testHostPause() {
+            clearLog();
+            log('Testing Host Pause...');
+            gamePaused = false; // Reset state
+            pauseGame();
+            // Simulate message to client
+            handleHostData({type: 'pause'});
+        }
+
+        function testHostResume() {
+            clearLog();
+            log('Testing Host Resume...');
+            gamePaused = true; // Set paused state
+            resumeGame();
+            // Simulate message to client
+            handleHostData({type: 'resume'});
+        }
+
+        function testClientPause() {
+            clearLog();
+            log('Testing Client Pause...');
+            gamePaused = false; // Reset state
+            pauseGame();
+            // Simulate message to host
+            handleClientData({type: 'pause'});
+        }
+
+        function testClientResume() {
+            clearLog();
+            log('Testing Client Resume...');
+            gamePaused = true; // Set paused state
+            resumeGame();
+            // Simulate message to host
+            handleClientData({type: 'resume'});
+        }
+    </script>
+</body>
+</html>

@@ -3,23 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Pong</title>
+    <title>Retro ping</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
         <canvas id="game-canvas" width="900" height="700"></canvas>
-        <div id="score">0 : 0</div>
+        <div id="scoreboard">
+            <div id="left-player">Player</div>
+            <div id="score">0 : 0</div>
+            <div id="right-player">Computer</div>
+        </div>
         <div id="start-screen">
-            <h1>RETRO PONG</h1>
+            <h1>RETRO PING</h1>
             <p>Use your mouse to control the paddle</p>
-            <button id="start-button">START GAME</button>
-            <button id="share-button" style="margin-top:10px;">SHARE</button>
-            <div id="share-link" style="margin-top:10px; word-break: break-all;"></div>
+            <div class="button-container">
+                <button id="start-button">START GAME</button>
+                <button id="share-button">INVITE PLAYER</button>
+            </div>
+        </div>
+        <div id="pause-screen" style="display: none;">
+            <h1>GAME PAUSED</h1>
+            <div class="button-container">
+                <button id="resume-button">RESUME</button>
+                <button id="exit-button">EXIT</button>
+            </div>
         </div>
     </div>
 
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="pong.js"></script>
+    <script src="ping.js"></script>
 </body>
 </html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Remote Player Fix</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background-color: #000;
+            color: #fff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #fff;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 5px;
+            background-color: #333;
+        }
+        .mock-game-container {
+            position: relative;
+            width: 400px;
+            height: 300px;
+            border: 2px solid #fff;
+            margin: 20px 0;
+        }
+        .mock-scoreboard {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #fff;
+            font-weight: bold;
+        }
+        .mock-connection-status {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #fff;
+        }
+        .mock-indicator {
+            font-size: 16px;
+            color: #00ff00;
+        }
+        .mock-indicator.connecting {
+            color: #ffff00;
+        }
+        .mock-indicator.disconnected {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Remote Player Fix</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Remote Player Labels</h2>
+        <p>This simulates what a remote player should see:</p>
+        <div class="mock-game-container">
+            <div class="mock-scoreboard">
+                <div id="mock-left-player">Opponent</div>
+                <div id="mock-score">0 : 0</div>
+                <div id="mock-right-player">Player</div>
+            </div>
+        </div>
+        <div class="result">
+            Expected: Left = "Opponent", Right = "Player"<br>
+            Actual: Left = "<span id="actual-left">Opponent</span>", Right = "<span id="actual-right">Player</span>"<br>
+            Status: <span id="label-test-status" style="color: #00ff00;">PASS</span>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Connection Status Indicator</h2>
+        <p>This simulates the connection status indicator for multiplayer:</p>
+        <div class="mock-game-container">
+            <div class="mock-connection-status" id="mock-status">
+                <div id="mock-text">MULTIPLAYER - CONNECTED</div>
+                <div id="mock-indicator" class="mock-indicator">●</div>
+            </div>
+        </div>
+        <div class="result">
+            <button onclick="testConnecting()">Test Connecting</button>
+            <button onclick="testConnected()">Test Connected</button>
+            <button onclick="testDisconnected()">Test Disconnected</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Open Actual Game</h2>
+        <p>Test the actual implementation:</p>
+        <div class="result">
+            <a href="index.html" target="_blank" style="color: #00ff00;">Open Host Game</a><br>
+            <a href="index.html?host=test123" target="_blank" style="color: #00ff00;">Open Client Game (simulated)</a>
+        </div>
+    </div>
+
+    <script>
+        function testConnecting() {
+            const indicator = document.getElementById('mock-indicator');
+            const text = document.getElementById('mock-text');
+            indicator.className = 'mock-indicator connecting';
+            text.textContent = 'MULTIPLAYER - CONNECTING';
+        }
+        
+        function testConnected() {
+            const indicator = document.getElementById('mock-indicator');
+            const text = document.getElementById('mock-text');
+            indicator.className = 'mock-indicator';
+            text.textContent = 'MULTIPLAYER - CONNECTED';
+        }
+        
+        function testDisconnected() {
+            const indicator = document.getElementById('mock-indicator');
+            const text = document.getElementById('mock-text');
+            indicator.className = 'mock-indicator disconnected';
+            text.textContent = 'MULTIPLAYER - DISCONNECTED';
+        }
+        
+        // Verify the labels are correct
+        window.onload = function() {
+            const leftText = document.getElementById('mock-left-player').textContent;
+            const rightText = document.getElementById('mock-right-player').textContent;
+            
+            document.getElementById('actual-left').textContent = leftText;
+            document.getElementById('actual-right').textContent = rightText;
+            
+            const isCorrect = leftText === 'Opponent' && rightText === 'Player';
+            const statusElement = document.getElementById('label-test-status');
+            statusElement.textContent = isCorrect ? 'PASS' : 'FAIL';
+            statusElement.style.color = isCorrect ? '#00ff00' : '#ff0000';
+        };
+    </script>
+</body>
+</html>

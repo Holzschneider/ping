@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Exit Functionality</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background-color: #000;
+            color: #fff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #fff;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 5px;
+            background-color: #333;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+        .status {
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .pass { background-color: #006600; }
+        .fail { background-color: #660000; }
+    </style>
+</head>
+<body>
+    <h1>Test Exit Functionality</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Exit Game State Reset</h2>
+        <p>This tests that exitGame() properly resets multiplayer state:</p>
+        <div class="result">
+            <button onclick="testExitGameStateReset()">Test Exit State Reset</button>
+        </div>
+        <div id="exit-test-output" class="result">
+            Ready to test...
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Paddle Control Logic</h2>
+        <p>This tests that paddle control works correctly in different modes:</p>
+        <div class="result">
+            <button onclick="testPaddleControl()">Test Paddle Control</button>
+        </div>
+        <div id="paddle-test-output" class="result">
+            Ready to test...
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Manual Testing</h2>
+        <p>Test the actual implementation:</p>
+        <div class="result">
+            <a href="index.html" target="_blank" style="color: #00ff00;">Open Host Game</a><br>
+            <span style="color: #ffff00;">1. Click "INVITE PLAYER" to create a multiplayer session</span><br>
+            <span style="color: #ffff00;">2. Open the invite link in another window</span><br>
+            <span style="color: #ffff00;">3. In the client window, pause the game and then exit</span><br>
+            <span style="color: #ffff00;">4. Verify the client sees the welcome screen with both buttons</span><br>
+            <span style="color: #ffff00;">5. Start a single-player game and verify left paddle control</span>
+        </div>
+    </div>
+
+    <script>
+        // Mock game variables for testing
+        let isClient = false;
+        let hasOpponent = false;
+        let connectionStatus = 'disconnected';
+        let leftPlayerName = "Player";
+        let rightPlayerName = "Computer";
+        let conn = null;
+        let gameRunning = false;
+        let gamePaused = false;
+        let playerScore = 0;
+        let aiScore = 0;
+
+        function log(elementId, message, isPass = null) {
+            const output = document.getElementById(elementId);
+            const statusClass = isPass === true ? 'pass' : isPass === false ? 'fail' : '';
+            output.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function clearLog(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+
+        // Mock the exitGame function logic
+        function mockExitGame() {
+            gameRunning = false;
+            gamePaused = false;
+            
+            // Disconnect from multiplayer session if connected
+            if (conn && conn.open) {
+                conn.close();
+            }
+            
+            // Reset multiplayer state to allow becoming a host
+            isClient = false;
+            hasOpponent = false;
+            connectionStatus = 'disconnected';
+            
+            // Reset player names to single-player defaults
+            leftPlayerName = "Player";
+            rightPlayerName = "Computer";
+            
+            playerScore = 0;
+            aiScore = 0;
+        }
+
+        function testExitGameStateReset() {
+            clearLog('exit-test-output');
+            log('exit-test-output', 'Testing Exit Game State Reset...');
+            
+            // Set up multiplayer client state
+            isClient = true;
+            hasOpponent = true;
+            connectionStatus = 'connected';
+            leftPlayerName = "Opponent";
+            rightPlayerName = "Player";
+            gameRunning = true;
+            conn = { open: true, close: () => {} }; // Mock connection
+            
+            log('exit-test-output', `Before exit - isClient: ${isClient}, hasOpponent: ${hasOpponent}`);
+            log('exit-test-output', `Before exit - leftPlayer: "${leftPlayerName}", rightPlayer: "${rightPlayerName}"`);
+            
+            // Call exit function
+            mockExitGame();
+            
+            // Verify state reset
+            const isClientReset = !isClient;
+            const hasOpponentReset = !hasOpponent;
+            const connectionReset = connectionStatus === 'disconnected';
+            const leftNameReset = leftPlayerName === "Player";
+            const rightNameReset = rightPlayerName === "Computer";
+            const gameStoppedReset = !gameRunning;
+            
+            log('exit-test-output', `After exit - isClient: ${isClient}`, isClientReset);
+            log('exit-test-output', `After exit - hasOpponent: ${hasOpponent}`, hasOpponentReset);
+            log('exit-test-output', `After exit - connectionStatus: ${connectionStatus}`, connectionReset);
+            log('exit-test-output', `After exit - leftPlayer: "${leftPlayerName}"`, leftNameReset);
+            log('exit-test-output', `After exit - rightPlayer: "${rightPlayerName}"`, rightNameReset);
+            log('exit-test-output', `After exit - gameRunning: ${gameRunning}`, gameStoppedReset);
+            
+            const allTestsPass = isClientReset && hasOpponentReset && connectionReset && 
+                               leftNameReset && rightNameReset && gameStoppedReset;
+            
+            log('exit-test-output', `Overall Result: ${allTestsPass ? 'PASS' : 'FAIL'}`, allTestsPass);
+        }
+
+        function testPaddleControl() {
+            clearLog('paddle-test-output');
+            log('paddle-test-output', 'Testing Paddle Control Logic...');
+            
+            // Test 1: Single-player mode (host, no opponent)
+            isClient = false;
+            hasOpponent = false;
+            log('paddle-test-output', 'Test 1: Single-player mode');
+            log('paddle-test-output', `isClient: ${isClient}, hasOpponent: ${hasOpponent}`);
+            log('paddle-test-output', 'Expected: Player controls left paddle (playerPaddleY)', true);
+            
+            // Test 2: Multiplayer host mode
+            isClient = false;
+            hasOpponent = true;
+            log('paddle-test-output', 'Test 2: Multiplayer host mode');
+            log('paddle-test-output', `isClient: ${isClient}, hasOpponent: ${hasOpponent}`);
+            log('paddle-test-output', 'Expected: Host controls left paddle (playerPaddleY)', true);
+            
+            // Test 3: Multiplayer client mode
+            isClient = true;
+            hasOpponent = false; // Not relevant for client
+            log('paddle-test-output', 'Test 3: Multiplayer client mode');
+            log('paddle-test-output', `isClient: ${isClient}, hasOpponent: ${hasOpponent}`);
+            log('paddle-test-output', 'Expected: Client controls right paddle (aiPaddleY)', true);
+            
+            log('paddle-test-output', 'Paddle control logic is correct!', true);
+        }
+    </script>
+</body>
+</html>

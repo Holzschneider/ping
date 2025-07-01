@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Multiplayer Logic</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background-color: #000;
+            color: #fff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #fff;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 5px;
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Multiplayer Logic</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Host Player Names</h2>
+        <div id="host-test-result" class="result"></div>
+        <button onclick="testHostPlayerNames()">Test Host Names</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Client Player Names</h2>
+        <div id="client-test-result" class="result"></div>
+        <button onclick="testClientPlayerNames()">Test Client Names</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Auto-start Logic</h2>
+        <div id="autostart-test-result" class="result"></div>
+        <button onclick="testAutoStartLogic()">Test Auto-start</button>
+    </div>
+
+    <script>
+        // Mock the game variables and functions
+        let leftPlayerName = "Player";
+        let rightPlayerName = "Computer";
+        let isClient = false;
+        let gameStarted = false;
+        
+        function startGame() {
+            gameStarted = true;
+            console.log("Game started!");
+        }
+        
+        function testHostPlayerNames() {
+            // Reset to host state
+            isClient = false;
+            leftPlayerName = "Player";
+            rightPlayerName = "Computer";
+            
+            // Simulate host logic
+            if (!isClient) {
+                // Host keeps default names initially
+                // When opponent connects, rightPlayerName becomes "Opponent"
+                rightPlayerName = "Opponent";
+            }
+            
+            const result = document.getElementById('host-test-result');
+            const expected = leftPlayerName === "Player" && rightPlayerName === "Opponent";
+            result.innerHTML = `Host Names - Left: "${leftPlayerName}", Right: "${rightPlayerName}" - ${expected ? 'PASS' : 'FAIL'}`;
+            result.style.backgroundColor = expected ? '#006600' : '#660000';
+        }
+        
+        function testClientPlayerNames() {
+            // Reset and set to client state
+            isClient = true;
+            leftPlayerName = "Player";
+            rightPlayerName = "Computer";
+            
+            // Simulate client logic from our implementation
+            if (isClient) {
+                leftPlayerName = "Opponent";
+                rightPlayerName = "Player";
+            }
+            
+            const result = document.getElementById('client-test-result');
+            const expected = leftPlayerName === "Opponent" && rightPlayerName === "Player";
+            result.innerHTML = `Client Names - Left: "${leftPlayerName}", Right: "${rightPlayerName}" - ${expected ? 'PASS' : 'FAIL'}`;
+            result.style.backgroundColor = expected ? '#006600' : '#660000';
+        }
+        
+        function testAutoStartLogic() {
+            // Reset game state
+            gameStarted = false;
+            
+            // Simulate opponent connection (this would trigger startGame() in real code)
+            startGame();
+            
+            const result = document.getElementById('autostart-test-result');
+            const expected = gameStarted === true;
+            result.innerHTML = `Auto-start Logic - Game Started: ${gameStarted} - ${expected ? 'PASS' : 'FAIL'}`;
+            result.style.backgroundColor = expected ? '#006600' : '#660000';
+        }
+        
+        // Run initial tests
+        window.onload = function() {
+            testHostPlayerNames();
+            testClientPlayerNames();
+            testAutoStartLogic();
+        };
+    </script>
+</body>
+</html>

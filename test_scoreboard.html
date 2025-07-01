@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Scoreboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas" width="900" height="700"></canvas>
+        <div id="scoreboard">
+            <div id="left-player">Player</div>
+            <div id="score">0 : 0</div>
+            <div id="right-player">Computer</div>
+        </div>
+        <div style="position: absolute; bottom: 20px; left: 20px; color: white;">
+            <button onclick="testOpponentJoin()" style="margin: 5px; padding: 10px;">Test Opponent Join</button>
+            <button onclick="testOpponentLeave()" style="margin: 5px; padding: 10px;">Test Opponent Leave</button>
+            <button onclick="testScoreUpdate()" style="margin: 5px; padding: 10px;">Test Score Update</button>
+        </div>
+    </div>
+
+    <script>
+        // Mock the necessary variables and functions for testing
+        let playerScore = 0;
+        let aiScore = 0;
+        let leftPlayerName = "Player";
+        let rightPlayerName = "Computer";
+        let hasOpponent = false;
+
+        function updateScore() {
+            document.getElementById('score').textContent = `${playerScore} : ${aiScore}`;
+            document.getElementById('left-player').textContent = leftPlayerName;
+            document.getElementById('right-player').textContent = rightPlayerName;
+        }
+
+        function testOpponentJoin() {
+            hasOpponent = true;
+            rightPlayerName = "Opponent";
+            updateScore();
+            console.log("Opponent joined - right player should now show 'Opponent'");
+        }
+
+        function testOpponentLeave() {
+            hasOpponent = false;
+            rightPlayerName = "Computer";
+            updateScore();
+            console.log("Opponent left - right player should now show 'Computer'");
+        }
+
+        function testScoreUpdate() {
+            playerScore = Math.floor(Math.random() * 10);
+            aiScore = Math.floor(Math.random() * 10);
+            updateScore();
+            console.log(`Score updated to ${playerScore} : ${aiScore}`);
+        }
+
+        // Initialize the display
+        updateScore();
+    </script>
+</body>
+</html>

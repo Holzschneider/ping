@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Connection Icons</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas" width="900" height="700"></canvas>
+        <div id="scoreboard">
+            <div id="left-player">Player</div>
+            <div id="score">0 : 0</div>
+            <div id="right-player">Computer</div>
+        </div>
+        <div style="position: absolute; bottom: 20px; left: 20px; color: white; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 5px;">
+            <h3>Test Connection Icons</h3>
+            <button onclick="testHostWithComputer()" style="margin: 5px; padding: 10px;">Host vs Computer</button><br>
+            <button onclick="testHostWithOpponent()" style="margin: 5px; padding: 10px;">Host vs Opponent</button><br>
+            <button onclick="testClientConnecting()" style="margin: 5px; padding: 10px;">Client Connecting</button><br>
+            <button onclick="testClientConnected()" style="margin: 5px; padding: 10px;">Client Connected</button><br>
+            <button onclick="testClientDisconnected()" style="margin: 5px; padding: 10px;">Client Disconnected</button><br>
+        </div>
+    </div>
+
+    <script>
+        // Mock the necessary variables and functions for testing
+        let playerScore = 0;
+        let aiScore = 0;
+        let leftPlayerName = "Player";
+        let rightPlayerName = "Computer";
+        let hasOpponent = false;
+        let isClient = false;
+        let connectionStatus = 'disconnected';
+
+        // Copy the updateScore function from ping.js
+        function updateScore() {
+            document.getElementById('score').textContent = `${playerScore} : ${aiScore}`;
+
+            // Determine connection status for each player
+            let leftPlayerStatus, rightPlayerStatus;
+
+            if (isClient) {
+                // For clients: left is opponent (host), right is player (client)
+                leftPlayerStatus = connectionStatus; // Host connection status
+                rightPlayerStatus = 'connected'; // Client is always "connected" to themselves
+            } else {
+                // For hosts: left is player (host), right is opponent/computer
+                leftPlayerStatus = 'connected'; // Host is always "connected" to themselves
+                if (hasOpponent) {
+                    rightPlayerStatus = 'connected'; // Opponent is connected
+                } else {
+                    rightPlayerStatus = rightPlayerName === "Computer" ? 'computer' : 'disconnected';
+                }
+            }
+
+            // Get connection icons
+            const getConnectionIcon = (status) => {
+                switch(status) {
+                    case 'connected': return ' 🟢';
+                    case 'connecting': return ' 🟡';
+                    case 'disconnected': return ' 🔴';
+                    case 'computer': return ' 🤖';
+                    default: return ' 🔴';
+                }
+            };
+
+            // Update player labels with connection status
+            document.getElementById('left-player').textContent = leftPlayerName + getConnectionIcon(leftPlayerStatus);
+            document.getElementById('right-player').textContent = rightPlayerName + getConnectionIcon(rightPlayerStatus);
+        }
+
+        function testHostWithComputer() {
+            isClient = false;
+            hasOpponent = false;
+            leftPlayerName = "Player";
+            rightPlayerName = "Computer";
+            updateScore();
+            console.log("Host vs Computer - Player should show 🟢, Computer should show 🤖");
+        }
+
+        function testHostWithOpponent() {
+            isClient = false;
+            hasOpponent = true;
+            leftPlayerName = "Player";
+            rightPlayerName = "Opponent";
+            updateScore();
+            console.log("Host vs Opponent - Both should show 🟢");
+        }
+
+        function testClientConnecting() {
+            isClient = true;
+            connectionStatus = 'connecting';
+            leftPlayerName = "Opponent";
+            rightPlayerName = "Player";
+            updateScore();
+            console.log("Client Connecting - Opponent should show 🟡, Player should show 🟢");
+        }
+
+        function testClientConnected() {
+            isClient = true;
+            connectionStatus = 'connected';
+            leftPlayerName = "Opponent";
+            rightPlayerName = "Player";
+            updateScore();
+            console.log("Client Connected - Both should show 🟢");
+        }
+
+        function testClientDisconnected() {
+            isClient = true;
+            connectionStatus = 'disconnected';
+            leftPlayerName = "Opponent";
+            rightPlayerName = "Player";
+            updateScore();
+            console.log("Client Disconnected - Opponent should show 🔴, Player should show 🟢");
+        }
+
+        // Initialize with host vs computer
+        testHostWithComputer();
+    </script>
+</body>
+</html>

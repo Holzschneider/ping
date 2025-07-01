@@ -1,10 +1,10 @@
-# WebPong
+# ping
 
-A retro-styled Pong game built with HTML5 Canvas and JavaScript. Experience the classic arcade game with modern web technologies, featuring smooth gameplay, AI opponent, and visual effects.
+A retro-styled ping game built with HTML5 Canvas and JavaScript. Experience the classic arcade game with modern web technologies, featuring smooth gameplay, AI opponent, and visual effects.
 
 ## Features
 
-- **Classic Pong Gameplay**: Traditional paddle-and-ball mechanics
+- **Classic ping Gameplay**: Traditional paddle-and-ball mechanics
 - **AI Opponent**: Intelligent computer player with adjustable difficulty
 - **Mouse Controls**: Smooth paddle movement using mouse input
 - **Visual Effects**: Ball trail effects for enhanced visual appeal
@@ -59,16 +59,16 @@ A retro-styled Pong game built with HTML5 Canvas and JavaScript. Experience the 
 ### File Structure
 
 ```
-WebPong/
+ping/
 ├── index.html      # Main HTML file with game structure
-├── pong.js         # Game logic and mechanics
+├── ping.js         # Game logic and mechanics
 ├── style.css       # Styling and visual design
 └── README.md       # This file
 ```
 
 ### Game Configuration
 
-The game includes several configurable constants in `pong.js`:
+The game includes several configurable constants in `ping.js`:
 
 - `PADDLE_HEIGHT`: Height of the paddles (100px)
 - `PADDLE_WIDTH`: Width of the paddles (15px)
@@ -90,7 +90,7 @@ This game works in all modern browsers that support:
 
 ### Customization
 
-You can easily customize the game by modifying the constants in `pong.js`:
+You can easily customize the game by modifying the constants in `ping.js`:
 
 - Adjust `AI_DIFFICULTY` to make the computer easier or harder
 - Change `BALL_SPEED` and `BALL_ACCELERATION` for different gameplay feel

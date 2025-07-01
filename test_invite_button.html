@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Invite Button</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        #share-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 20px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        
+        #share-button:disabled {
+            background-color: #666;
+            color: #ccc;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Invite Button Functionality</h1>
+    <p>Click the button below to test the invite functionality:</p>
+    <button id="share-button">INVITE PLAYER</button>
+    
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script>
+        // Simulate the peer functionality for testing
+        const peer = new Peer();
+        peer.on('open', id => {
+            const link = `${location.origin}${location.pathname}?host=${id}`;
+            document.getElementById('share-button').addEventListener('click', () => {
+                navigator.clipboard.writeText(link);
+                const shareButton = document.getElementById('share-button');
+                shareButton.textContent = 'Invite link copied!';
+                shareButton.disabled = true;
+                shareButton.style.cursor = 'default';
+                console.log('Invite link copied to clipboard:', link);
+            });
+        });
+    </script>
+</body>
+</html>
