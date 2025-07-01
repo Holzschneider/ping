@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Centered Responsive 4:3 Box</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #content {
+            box-sizing: border-box;
+            border: 10px solid blue;
+            background: lightgray;
+            width: min(100vw, calc(100dvh * 4 / 3), 800px);
+            height: min(100dvh, calc(100vw * 3 / 4), 600px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+<div id="content">
+    <!-- Your centered content here -->
+</div>
+</body>
+</html>

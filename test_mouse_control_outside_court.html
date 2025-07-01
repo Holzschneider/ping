@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mouse Control Outside Court Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: monospace;
+            background-color: #000;
+            color: #fff;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            border: 2px solid #fff;
+            padding: 20px;
+        }
+        .status {
+            color: #0f0;
+            font-weight: bold;
+        }
+        .info {
+            color: #ff0;
+            font-weight: bold;
+        }
+        .test-instructions {
+            background: #222;
+            padding: 15px;
+            border: 1px solid #666;
+            margin: 10px 0;
+        }
+        iframe {
+            border: 2px solid #fff;
+            margin: 10px 0;
+            width: 100%;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mouse Control Outside Court Test</h1>
+    
+    <div class="test-section">
+        <h2 class="status">✅ IMPLEMENTATION COMPLETE</h2>
+        <p>The mouse movement control has been updated to track mouse movement outside of the court element.</p>
+        
+        <h3>Changes Made:</h3>
+        <ul class="status">
+            <li>✅ Changed mouse event listener from <code>canvas.addEventListener</code> to <code>document.body.addEventListener</code></li>
+            <li>✅ Updated movePaddle function to use entire viewport height instead of canvas height</li>
+            <li>✅ Mouse position now maps to paddle position across the entire screen</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2 class="info">🔧 TECHNICAL DETAILS</h2>
+        
+        <h3>Before (Limited to Canvas):</h3>
+        <div class="test-instructions">
+<strong>Event Listener:</strong> canvas.addEventListener('mousemove', movePaddle);<br>
+<strong>Coordinate Calculation:</strong><br>
+const rect = canvas.getBoundingClientRect();<br>
+const mouseY = e.clientY - rect.top;<br>
+const logicalMouseY = (mouseY / canvas.height) * LOGICAL_COURT_HEIGHT;
+        </div>
+        
+        <h3>After (Full Screen Tracking):</h3>
+        <div class="test-instructions">
+<strong>Event Listener:</strong> document.body.addEventListener('mousemove', movePaddle);<br>
+<strong>Coordinate Calculation:</strong><br>
+const mouseY = e.clientY;<br>
+const viewportHeight = window.innerHeight;<br>
+const logicalMouseY = (mouseY / viewportHeight) * LOGICAL_COURT_HEIGHT;
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎮 TEST INSTRUCTIONS</h2>
+        <div class="test-instructions">
+            <h3>How to Test:</h3>
+            <ol>
+                <li><strong>Start the game:</strong> Click "START GAME" in the game below</li>
+                <li><strong>Test inside court:</strong> Move your mouse over the game court - paddle should follow</li>
+                <li><strong>Test outside court:</strong> Move your mouse outside the game court area (in the black space around it) - paddle should still follow</li>
+                <li><strong>Test full range:</strong> Move mouse to top of browser window (paddle should go to top), move to bottom (paddle should go to bottom)</li>
+                <li><strong>Verify proportional control:</strong> Mouse at 25% of screen height should put paddle at 25% of court height</li>
+            </ol>
+            
+            <h3>Expected Behavior:</h3>
+            <ul class="status">
+                <li>✅ Paddle follows mouse movement anywhere on the screen</li>
+                <li>✅ Mouse at top of screen moves paddle to top of court</li>
+                <li>✅ Mouse at bottom of screen moves paddle to bottom of court</li>
+                <li>✅ Proportional control across entire viewport height</li>
+                <li>✅ No need to move mouse into court area to control paddle</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎯 LIVE TEST</h2>
+        <p>Test the updated mouse control in the game below:</p>
+        <iframe src="index.html"></iframe>
+    </div>
+    
+    <div class="test-section">
+        <h2 class="info">📋 SUMMARY</h2>
+        <p>The mouse control has been successfully updated to track movement outside the court element. The mouse event listener is now attached to <code>document.body</code> instead of the canvas, and the coordinate calculation maps the entire viewport height to the logical court height. This provides seamless paddle control regardless of where the mouse is positioned on the screen.</p>
+        
+        <p><strong>Key Benefits:</strong></p>
+        <ul>
+            <li>More intuitive control - no need to move mouse into court area</li>
+            <li>Better user experience for desktop players</li>
+            <li>Consistent with touch control behavior (which already uses document.body)</li>
+            <li>Maintains precise proportional control</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Paddle Sizing Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: monospace;
+            background-color: #000;
+            color: #fff;
+        }
+        .test-container {
+            margin-bottom: 20px;
+            border: 2px solid #fff;
+            padding: 10px;
+        }
+        .size-info {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        canvas {
+            border: 1px solid #fff;
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Paddle Sizing Test</h1>
+    <p>This test verifies that paddle sizes are proportional across different canvas sizes.</p>
+    
+    <div class="test-container">
+        <h3>Small Canvas (400x300)</h3>
+        <canvas id="canvas1" width="400" height="300"></canvas>
+        <div id="info1" class="size-info"></div>
+    </div>
+    
+    <div class="test-container">
+        <h3>Medium Canvas (600x450)</h3>
+        <canvas id="canvas2" width="600" height="450"></canvas>
+        <div id="info2" class="size-info"></div>
+    </div>
+    
+    <div class="test-container">
+        <h3>Large Canvas (800x600)</h3>
+        <canvas id="canvas3" width="800" height="600"></canvas>
+        <div id="info3" class="size-info"></div>
+    </div>
+
+    <script>
+        // Constants from the game
+        const PADDLE_HEIGHT_RATIO = 100 / 600;
+        const PADDLE_WIDTH_RATIO = 15 / 800;
+        const BALL_SIZE_RATIO = 15 / 600;
+
+        function testCanvas(canvasId, infoId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const info = document.getElementById(infoId);
+            
+            // Calculate sizes
+            const paddleHeight = Math.round(canvas.height * PADDLE_HEIGHT_RATIO);
+            const paddleWidth = Math.round(canvas.width * PADDLE_WIDTH_RATIO);
+            const ballSize = Math.round(canvas.height * BALL_SIZE_RATIO);
+            
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw center line
+            ctx.strokeStyle = '#fff';
+            ctx.setLineDash([5, 7]);
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw paddles
+            ctx.fillStyle = '#fff';
+            const paddleY = (canvas.height - paddleHeight) / 2;
+            ctx.fillRect(0, paddleY, paddleWidth, paddleHeight);
+            ctx.fillRect(canvas.width - paddleWidth, paddleY, paddleWidth, paddleHeight);
+            
+            // Draw ball
+            const ballX = canvas.width / 2 - ballSize / 2;
+            const ballY = canvas.height / 2 - ballSize / 2;
+            ctx.fillRect(ballX, ballY, ballSize, ballSize);
+            
+            // Update info
+            info.innerHTML = `
+                Canvas: ${canvas.width}x${canvas.height}<br>
+                Paddle: ${paddleWidth}x${paddleHeight} (${(paddleHeight/canvas.height*100).toFixed(1)}% of height)<br>
+                Ball: ${ballSize}x${ballSize} (${(ballSize/canvas.height*100).toFixed(1)}% of height)
+            `;
+        }
+        
+        // Test all canvases
+        testCanvas('canvas1', 'info1');
+        testCanvas('canvas2', 'info2');
+        testCanvas('canvas3', 'info3');
+    </script>
+</body>
+</html>

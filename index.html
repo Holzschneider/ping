@@ -2,20 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Retro ping</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
-        <canvas id="game-canvas" width="900" height="700"></canvas>
+        <h1 id="title-banderole">RETRO PING</h1>
+        <canvas id="game-canvas"></canvas>
         <div id="scoreboard">
             <div id="left-player">Player</div>
             <div id="score">0 : 0</div>
             <div id="right-player">Computer</div>
         </div>
         <div id="start-screen">
-            <h1>RETRO PING</h1>
             <p>Use your mouse to control the paddle</p>
             <div class="button-container">
                 <button id="start-button">START GAME</button>
@@ -23,7 +23,6 @@
             </div>
         </div>
         <div id="pause-screen" style="display: none;">
-            <h1>GAME PAUSED</h1>
             <div class="button-container">
                 <button id="resume-button">RESUME</button>
                 <button id="exit-button">EXIT</button>

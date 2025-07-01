@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Instruction Text Positioning Test</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #333;
+        }
+        .test-container {
+            margin-bottom: 30px;
+            border: 2px solid #fff;
+            padding: 10px;
+        }
+        .test-info {
+            color: #fff;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
+        .game-container-test, .game-container-test-mobile {
+            position: relative;
+            border: 4px solid #fff;
+            margin: 10px 0;
+            box-sizing: border-box;
+            image-rendering: pixelated;
+        }
+        .game-container-test {
+            width: 400px;
+            height: 300px;
+        }
+        .game-container-test-mobile {
+            width: 300px;
+            height: 400px;
+        }
+        /* Apply the same styling to test elements */
+        #title-banderole-1, #title-banderole-2 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #fff;
+            color: #000;
+            padding: 10px 0;
+            margin: 0;
+            text-align: center;
+            font-weight: bold;
+            z-index: 100;
+        }
+        #start-screen-1, #start-screen-2 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+        }
+        #start-screen-1 p, #start-screen-2 p {
+            position: absolute;
+            top: 80px; /* Fixed distance below the title banderole */
+            left: 0;
+            right: 0;
+            text-align: center;
+            margin: 0;
+            padding: 0 20px;
+            font-size: 18px;
+            z-index: 101; /* Above the title banderole */
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: #fff; font-family: monospace;">Instruction Text Positioning Test</h1>
+
+    <div class="test-container">
+        <div class="test-info">Test 1: Desktop Layout (400x300)</div>
+        <div class="game-container-test">
+            <h1 id="title-banderole-1">RETRO PING</h1>
+            <div id="start-screen-1">
+                <p>Touch and drag to control the paddle</p>
+                <div class="button-container">
+                    <button id="start-button-1">START GAME</button>
+                    <button id="share-button-1">INVITE PLAYER</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-info">Test 2: Mobile Portrait Layout (300x400)</div>
+        <div class="game-container-test-mobile">
+            <h1 id="title-banderole-2">RETRO PING</h1>
+            <div id="start-screen-2">
+                <p>Touch and drag to control the paddle</p>
+                <div class="button-container">
+                    <button id="start-button-2">START GAME</button>
+                    <button id="share-button-2">INVITE PLAYER</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-info">Test 3: Full Game Container</div>
+        <div id="game-container">
+            <h1 id="title-banderole">RETRO PING</h1>
+            <canvas id="game-canvas"></canvas>
+            <div id="start-screen">
+                <p>Touch and drag to control the paddle</p>
+                <div class="button-container">
+                    <button id="start-button">START GAME</button>
+                    <button id="share-button">INVITE PLAYER</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-info">
+        <h3>Expected Results:</h3>
+        <ul>
+            <li>✓ Instruction text should appear 80px below the "RETRO PING" title</li>
+            <li>✓ Text should be centered horizontally</li>
+            <li>✓ Text should never be occluded by the title banderole</li>
+            <li>✓ Text should be visible in all container sizes</li>
+            <li>✓ Buttons should appear below the instruction text</li>
+        </ul>
+    </div>
+</body>
+</html>
