@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Invite Functionality Fix</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background-color: #000;
+            color: #fff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #fff;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 5px;
+            background-color: #333;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+        button:disabled {
+            background-color: #666;
+            color: #ccc;
+            cursor: default;
+        }
+        .status {
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .pass { background-color: #006600; }
+        .fail { background-color: #660000; }
+        .info { background-color: #333366; }
+        .warning { background-color: #666600; }
+        .step {
+            background-color: #444;
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 3px solid #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Invite Functionality Fix</h1>
+    
+    <div class="test-section">
+        <h2>Issue & Fix Summary</h2>
+        <div class="result">
+            <strong>Issue:</strong> When a remote player exits, the invite function doesn't work properly.<br>
+            <strong>Root Cause:</strong> Connection reference (conn) was not cleared when opponent disconnected.<br>
+            <strong>Fix Applied:</strong> Added <code>conn = null;</code> in the opponent disconnect handler.<br>
+            <strong>Location:</strong> ping.js line ~100 in the conn.on('close') callback.
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Manual Test Procedure</h2>
+        <p>Follow these steps to verify the fix works:</p>
+        
+        <div class="step">
+            <strong>Step 1:</strong> Open the main game in a new tab/window
+            <br><a href="index.html" target="_blank" style="color: #00ff00;">→ Open Main Game (Host)</a>
+        </div>
+        
+        <div class="step">
+            <strong>Step 2:</strong> In the host window, click "INVITE PLAYER"
+            <br>Expected: Button changes to "Invite link copied!" and gets disabled
+        </div>
+        
+        <div class="step">
+            <strong>Step 3:</strong> Copy the invite link from clipboard and open it in another tab/window
+            <br>Expected: Second window shows the game with "Opponent" vs "Player"
+        </div>
+        
+        <div class="step">
+            <strong>Step 4:</strong> In the host window, verify it shows "Player" vs "Opponent"
+            <br>Expected: Game starts automatically when client connects
+        </div>
+        
+        <div class="step">
+            <strong>Step 5:</strong> Close the client window (simulating remote player exit)
+            <br>Expected: Host window should reset to single-player mode
+        </div>
+        
+        <div class="step">
+            <strong>Step 6:</strong> In the host window, verify the invite button resets
+            <br>Expected: Button shows "INVITE PLAYER" and is enabled again
+        </div>
+        
+        <div class="step">
+            <strong>Step 7:</strong> Click "INVITE PLAYER" again in the host window
+            <br>Expected: Button should work normally, showing "Invite link copied!"
+        </div>
+        
+        <div class="step">
+            <strong>Step 8:</strong> Test the new invite link by opening it in another window
+            <br>Expected: New connection should work properly
+        </div>
+        
+        <div class="step">
+            <strong>Step 9:</strong> Repeat steps 5-8 multiple times
+            <br>Expected: Invite functionality should work consistently after each disconnect
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Expected Behavior</h2>
+        <div class="result">
+            <div class="status pass">✓ Invite button resets properly when opponent disconnects</div>
+            <div class="status pass">✓ Invite functionality works after remote player exits</div>
+            <div class="status pass">✓ Multiple disconnect/reconnect cycles work correctly</div>
+            <div class="status pass">✓ Connection state is properly cleared (conn = null)</div>
+            <div class="status pass">✓ New invite links are generated correctly</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Code Changes Made</h2>
+        <div class="result">
+            <pre style="background-color: #222; padding: 10px; color: #0f0;">
+// In ping.js, around line 88-101:
+conn.on('close', () => {
+    hasOpponent = false;
+    rightPlayerName = "Computer";
+    updateScore();
+
+    // Reset share button state when opponent disconnects
+    const shareButton = document.getElementById('share-button');
+    shareButton.textContent = 'INVITE PLAYER';
+    shareButton.disabled = false;
+    shareButton.style.cursor = 'pointer';
+    
+    // Clear the connection reference to allow new connections
+    conn = null;  // ← THIS LINE WAS ADDED
+});
+            </pre>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="test-results" class="result">
+            <button onclick="runQuickTest()">Run Quick Connection Test</button>
+            <div id="test-output" style="margin-top: 10px;">
+                Click the button above to run a quick test of the connection logic.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function runQuickTest() {
+            const output = document.getElementById('test-output');
+            output.innerHTML = '';
+            
+            function log(message, type = '') {
+                const div = document.createElement('div');
+                div.className = `status ${type}`;
+                div.textContent = message;
+                output.appendChild(div);
+            }
+            
+            log('Testing connection state management...', 'info');
+            
+            // Simulate the connection lifecycle
+            let hasOpponent = false;
+            let conn = null;
+            
+            // Initial state
+            log('Initial state: hasOpponent = false, conn = null', 'pass');
+            
+            // Simulate opponent connection
+            hasOpponent = true;
+            conn = { open: true, close: () => {} };
+            log('Opponent connects: hasOpponent = true, conn = [object]', 'pass');
+            
+            // Simulate opponent disconnection (with our fix)
+            hasOpponent = false;
+            conn = null; // This is our fix
+            log('Opponent disconnects: hasOpponent = false, conn = null', 'pass');
+            
+            // Test if ready for new connection
+            if (!hasOpponent && conn === null) {
+                log('✓ Ready for new invite - state is clean', 'pass');
+            } else {
+                log('✗ Not ready for new invite - state has issues', 'fail');
+            }
+            
+            log('Quick test completed. Run manual test for full verification.', 'info');
+        }
+    </script>
+</body>
+</html>

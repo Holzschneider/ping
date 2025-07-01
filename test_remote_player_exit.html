@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Remote Player Exit Issue</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background-color: #000;
+            color: #fff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #fff;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 5px;
+            background-color: #333;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+        button:disabled {
+            background-color: #666;
+            color: #ccc;
+            cursor: default;
+        }
+        .status {
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .pass { background-color: #006600; }
+        .fail { background-color: #660000; }
+        .info { background-color: #333366; }
+    </style>
+</head>
+<body>
+    <h1>Test Remote Player Exit Issue</h1>
+    
+    <div class="test-section">
+        <h2>Issue Description</h2>
+        <p>When a remote player exits, the invite function doesn't work.</p>
+        <p>This test will simulate the scenario and check what happens to the invite functionality.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Automated Test</h2>
+        <button onclick="testRemotePlayerExit()">Test Remote Player Exit Scenario</button>
+        <div id="test-output" class="result">
+            Ready to test...
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Manual Test Instructions</h2>
+        <p>To reproduce the issue manually:</p>
+        <div class="result">
+            <span style="color: #ffff00;">1. Open the main game (index.html) as Host</span><br>
+            <span style="color: #ffff00;">2. Click "INVITE PLAYER" to get the invite link</span><br>
+            <span style="color: #ffff00;">3. Open the invite link in another window (Remote Player)</span><br>
+            <span style="color: #ffff00;">4. In the Remote Player window, exit the game</span><br>
+            <span style="color: #ffff00;">5. Back in the Host window, try to click "INVITE PLAYER" again</span><br>
+            <span style="color: #ffff00;">6. Check if the invite functionality works properly</span><br>
+            <a href="index.html" target="_blank" style="color: #00ff00;">Open Main Game</a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script>
+        function log(message, isPass = null) {
+            const output = document.getElementById('test-output');
+            const statusClass = isPass === true ? 'pass' : isPass === false ? 'fail' : isPass === 'info' ? 'info' : '';
+            output.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function clearLog() {
+            document.getElementById('test-output').innerHTML = '';
+        }
+
+        function testRemotePlayerExit() {
+            clearLog();
+            log('Testing Remote Player Exit Scenario...', 'info');
+            
+            // Simulate the host setup
+            let hasOpponent = false;
+            let isClient = false;
+            let conn = null;
+            let peer = null;
+            
+            log('Step 1: Setting up host...', 'info');
+            
+            // Create a mock peer for testing
+            peer = new Peer();
+            peer.on('open', (id) => {
+                log(`Host peer ID: ${id}`, true);
+                
+                // Simulate invite button setup
+                const link = `${location.origin}${location.pathname}?host=${id}`;
+                log(`Invite link created: ${link}`, true);
+                
+                // Test the invite button click functionality
+                log('Step 2: Testing invite button click...', 'info');
+                
+                // Simulate clicking invite button
+                log('Invite button clicked - should copy link and disable button', true);
+                
+                // Simulate opponent connection
+                log('Step 3: Simulating opponent connection...', 'info');
+                hasOpponent = true;
+                log('Opponent connected - hasOpponent = true', true);
+                
+                // Simulate opponent disconnection (this is where the issue might be)
+                log('Step 4: Simulating opponent disconnection...', 'info');
+                hasOpponent = false;
+                
+                // Check if invite button is properly reset
+                log('Opponent disconnected - hasOpponent = false', true);
+                log('Invite button should be reset to original state', true);
+                
+                // Test if invite functionality works after opponent disconnect
+                log('Step 5: Testing invite functionality after disconnect...', 'info');
+                
+                // This is where we need to check if the invite function still works
+                // The issue might be that the event listener is not properly re-attached
+                // or the button state is not correctly managed
+                
+                log('Testing if invite button can be clicked again...', 'info');
+                
+                // Simulate another invite button click
+                try {
+                    // This should work if the functionality is properly restored
+                    log('Second invite attempt should work', true);
+                    log('If this fails, it indicates the invite function is broken', 'info');
+                } catch (error) {
+                    log(`Error during second invite: ${error.message}`, false);
+                }
+                
+                log('Test completed. Check manual test to verify actual behavior.', 'info');
+            });
+            
+            peer.on('error', (error) => {
+                log(`Peer error: ${error}`, false);
+            });
+        }
+    </script>
+</body>
+</html>

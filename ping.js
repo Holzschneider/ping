@@ -89,6 +89,15 @@ function init() {
                         hasOpponent = false;
                         rightPlayerName = "Computer";
                         updateScore();
+
+                        // Reset share button state when opponent disconnects
+                        const shareButton = document.getElementById('share-button');
+                        shareButton.textContent = 'INVITE PLAYER';
+                        shareButton.disabled = false;
+                        shareButton.style.cursor = 'pointer';
+
+                        // Clear the connection reference to allow new connections
+                        conn = null;
                     });
                 } else {
                     // Additional players become spectators

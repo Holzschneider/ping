@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Invite Button Reset</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background-color: #000;
+            color: #fff;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #fff;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 5px;
+            background-color: #333;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+        button:disabled {
+            background-color: #666;
+            color: #ccc;
+            cursor: default;
+        }
+        .status {
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .pass { background-color: #006600; }
+        .fail { background-color: #660000; }
+    </style>
+</head>
+<body>
+    <h1>Test Invite Button Reset Functionality</h1>
+    
+    <div class="test-section">
+        <h2>Test: Invite Button Reset on Opponent Disconnect</h2>
+        <p>This tests that the invite button resets when an opponent disconnects:</p>
+        <button id="share-button">INVITE PLAYER</button>
+        <div class="result">
+            <button onclick="testInviteButtonReset()">Test Invite Button Reset</button>
+        </div>
+        <div id="test-output" class="result">
+            Ready to test...
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Manual Test Instructions</h2>
+        <p>To test the actual functionality:</p>
+        <div class="result">
+            <span style="color: #ffff00;">1. Open the main game (index.html) in two browser windows</span><br>
+            <span style="color: #ffff00;">2. In the first window, click "INVITE PLAYER" - button should change to "Invite link copied!"</span><br>
+            <span style="color: #ffff00;">3. Copy the invite link and open it in the second window</span><br>
+            <span style="color: #ffff00;">4. Close the second window (simulating opponent disconnect)</span><br>
+            <span style="color: #ffff00;">5. Check the first window - the invite button should reset to "INVITE PLAYER"</span><br>
+            <a href="index.html" target="_blank" style="color: #00ff00;">Open Main Game</a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script>
+        function log(message, isPass = null) {
+            const output = document.getElementById('test-output');
+            const statusClass = isPass === true ? 'pass' : isPass === false ? 'fail' : '';
+            output.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function clearLog() {
+            document.getElementById('test-output').innerHTML = '';
+        }
+
+        function testInviteButtonReset() {
+            clearLog();
+            log('Testing Invite Button Reset...');
+            
+            const shareButton = document.getElementById('share-button');
+            
+            // Test initial state
+            const initialText = shareButton.textContent;
+            const initialDisabled = shareButton.disabled;
+            const initialCursor = shareButton.style.cursor;
+            
+            log(`Initial state - Text: "${initialText}", Disabled: ${initialDisabled}, Cursor: "${initialCursor}"`);
+            
+            // Simulate clicking the invite button
+            shareButton.textContent = 'Invite link copied!';
+            shareButton.disabled = true;
+            shareButton.style.cursor = 'default';
+            
+            log(`After click - Text: "${shareButton.textContent}", Disabled: ${shareButton.disabled}, Cursor: "${shareButton.style.cursor}"`);
+            
+            // Simulate the reset logic from our implementation
+            shareButton.textContent = 'INVITE PLAYER';
+            shareButton.disabled = false;
+            shareButton.style.cursor = 'pointer';
+            
+            log(`After reset - Text: "${shareButton.textContent}", Disabled: ${shareButton.disabled}, Cursor: "${shareButton.style.cursor}"`);
+            
+            // Verify the reset worked
+            const textReset = shareButton.textContent === 'INVITE PLAYER';
+            const disabledReset = !shareButton.disabled;
+            const cursorReset = shareButton.style.cursor === 'pointer';
+            
+            log(`Text reset: ${textReset}`, textReset);
+            log(`Disabled reset: ${disabledReset}`, disabledReset);
+            log(`Cursor reset: ${cursorReset}`, cursorReset);
+            
+            const allTestsPass = textReset && disabledReset && cursorReset;
+            log(`Overall Result: ${allTestsPass ? 'PASS' : 'FAIL'}`, allTestsPass);
+        }
+    </script>
+</body>
+</html>

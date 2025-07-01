@@ -11,7 +11,10 @@ A retro-styled ping game built with HTML5 Canvas and JavaScript. Experience the 
 - **Retro Styling**: Classic black and white design with pixelated rendering
 - **Responsive Scoring**: Real-time score tracking
 - **Ball Physics**: Realistic collision detection and ball acceleration
-- **Multiplayer Mode**: Invite a friend with a magic link using WebRTC/PeerJS
+- **Multiplayer Mode**: Real-time peer-to-peer multiplayer using WebRTC/PeerJS
+- **Spectator Support**: Additional players can join as spectators
+- **Synchronized Gameplay**: Pause/resume synchronization between players
+- **Connection Management**: Automatic reconnection handling and state management
 
 ## Getting Started
 
@@ -29,8 +32,8 @@ A retro-styled ping game built with HTML5 Canvas and JavaScript. Experience the 
 
 1. Open `index.html` in your web browser
 2. The game will load automatically
-3. Click the "START GAME" button to begin playing
-4. To play with a friend, click **SHARE** and send them the magic link
+3. **Single Player**: Click the "START GAME" button to play against the AI
+4. **Multiplayer**: Click "INVITE PLAYER" to generate a shareable link for multiplayer
 
 ## How to Play
 
@@ -53,6 +56,48 @@ A retro-styled ping game built with HTML5 Canvas and JavaScript. Experience the 
 - **Trail Effect**: The ball leaves a visual trail as it moves across the screen
 - **Boundary Collision**: The ball bounces off the top and bottom walls
 - **Auto Reset**: The ball automatically resets to the center after each point
+
+### Multiplayer Mode
+
+#### Setting Up a Multiplayer Game
+
+1. **Host Player**:
+   - Open the game in your browser
+   - Click "INVITE PLAYER" button
+   - The invite link will be copied to your clipboard
+   - Share this link with your friend
+   - The game will automatically start when your friend connects
+
+2. **Joining Player**:
+   - Click on the invite link shared by the host
+   - You'll automatically connect to the host's game
+   - The game will start immediately upon connection
+   - You'll control the right paddle, host controls the left paddle
+
+#### Multiplayer Features
+
+- **Real-time Synchronization**: Ball position, scores, and paddle movements are synchronized in real-time
+- **Pause/Resume**: Either player can pause the game by clicking on the game area, and it will pause for both players
+- **Player Roles**: 
+  - Host (left paddle): Runs the game logic and physics
+  - Client (right paddle): Sends paddle position to host and receives game state
+- **Spectator Mode**: If additional players join a full game, they become spectators and can watch the match
+- **Connection Status**: The game displays current connection status and handles disconnections gracefully
+- **Exit Functionality**: Players can exit multiplayer games and return to single-player mode
+
+#### Multiplayer Controls
+
+- **Mouse Movement**: Control your paddle by moving the mouse up and down
+- **Pause/Resume**: Click anywhere on the game canvas to pause/resume (synchronized for both players)
+- **Exit Game**: Use the pause menu to exit and return to the main screen
+
+#### Technical Notes
+
+- Uses WebRTC peer-to-peer connections via PeerJS for low-latency gameplay
+- No server required - direct browser-to-browser communication
+- Host player runs the authoritative game simulation
+- Automatic reconnection attempts if connection is lost
+- Works across different networks and devices
 
 ## Technical Details
 
@@ -85,6 +130,13 @@ This game works in all modern browsers that support:
 - HTML5 Canvas
 - ES6 JavaScript features
 - CSS3 styling
+- **WebRTC** (for multiplayer functionality)
+- **Clipboard API** (for invite link copying)
+
+#### Multiplayer Requirements
+- Modern browsers with WebRTC support (Chrome, Firefox, Safari, Edge)
+- Internet connection for initial peer discovery
+- No additional plugins or extensions required
 
 ## Development
 
@@ -92,10 +144,18 @@ This game works in all modern browsers that support:
 
 You can easily customize the game by modifying the constants in `ping.js`:
 
-- Adjust `AI_DIFFICULTY` to make the computer easier or harder
+- Adjust `AI_DIFFICULTY` to make the computer easier or harder (single-player only)
 - Change `BALL_SPEED` and `BALL_ACCELERATION` for different gameplay feel
 - Modify `TRAIL_LENGTH` to change the visual trail effect
 - Update colors and styling in `style.css` for different visual themes
+
+#### Multiplayer Customization
+
+The multiplayer system includes several configurable aspects:
+- **Connection timeout handling**: Modify reconnection logic in the peer event handlers
+- **Spectator limits**: Currently unlimited spectators, can be modified in the connection handler
+- **Game state synchronization rate**: Controlled by the game loop frequency
+- **Player name customization**: Modify `leftPlayerName` and `rightPlayerName` variables
 
 ### Adding Features
 
@@ -103,6 +163,11 @@ The codebase is well-structured for adding new features:
 - Game state management in the main game loop
 - Separate functions for rendering, collision detection, and AI
 - Event-driven architecture for user input
+- **Multiplayer architecture**: Host-client model with clear separation of concerns
+  - Host handles game logic and physics simulation
+  - Client handles input and receives synchronized game state
+  - Message-based communication system for easy extension
+  - Spectator support framework for additional features
 
 ## License
 
