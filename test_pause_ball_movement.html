@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pause Ball Movement Test - Retro Ping</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #debug-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1 id="title-banderole">PAUSE BALL MOVEMENT TEST</h1>
+        <canvas id="game-canvas"></canvas>
+        <div id="scoreboard">
+            <div id="left-player">Player</div>
+            <div id="score">0 : 0</div>
+            <div id="right-player">Computer</div>
+        </div>
+        <div id="start-screen">
+            <p>Testing that ball stops when paused</p>
+            <div class="button-container">
+                <button id="start-button">START TEST</button>
+                <button id="share-button" style="display: none;">INVITE PLAYER</button>
+            </div>
+        </div>
+        <div id="pause-screen" style="display: none;">
+            <div class="button-container">
+                <button id="resume-button">RESUME</button>
+                <button id="exit-button">EXIT</button>
+            </div>
+        </div>
+        <div id="debug-info">
+            <div>Game Paused: <span id="paused-status">false</span></div>
+            <div>Accumulator: <span id="accumulator">0</span></div>
+            <div>Alpha: <span id="alpha">0</span></div>
+            <div>Ball Target: <span id="ball-target">0, 0</span></div>
+            <div>Ball Render: <span id="ball-render">0, 0</span></div>
+            <div>Ball Moving: <span id="ball-moving">false</span></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="ping.js"></script>
+    <script>
+        // Track ball position to detect movement
+        let lastBallX = 0;
+        let lastBallY = 0;
+        let ballMoving = false;
+
+        // Override the render function to add debug info
+        const originalRender = render;
+        render = function(alpha = 1) {
+            originalRender(alpha);
+            
+            // Check if ball is moving
+            ballMoving = (Math.abs(ballX - lastBallX) > 0.1 || Math.abs(ballY - lastBallY) > 0.1);
+            lastBallX = ballX;
+            lastBallY = ballY;
+            
+            // Update debug info
+            document.getElementById('paused-status').textContent = gamePaused;
+            document.getElementById('accumulator').textContent = accumulator.toFixed(2);
+            document.getElementById('alpha').textContent = alpha.toFixed(3);
+            document.getElementById('ball-target').textContent = `${ballTargetX.toFixed(1)}, ${ballTargetY.toFixed(1)}`;
+            document.getElementById('ball-render').textContent = `${ballX.toFixed(1)}, ${ballY.toFixed(1)}`;
+            document.getElementById('ball-moving').textContent = ballMoving;
+            document.getElementById('ball-moving').style.color = ballMoving ? 'red' : 'green';
+        };
+
+        // Auto-test sequence
+        window.addEventListener('load', () => {
+            console.log('[DEBUG_LOG] Starting pause ball movement test');
+            
+            setTimeout(() => {
+                console.log('[DEBUG_LOG] Starting game');
+                document.getElementById('start-button').click();
+                
+                // Let the ball move for a bit
+                setTimeout(() => {
+                    console.log('[DEBUG_LOG] Ball should be moving now');
+                    console.log('[DEBUG_LOG] Ball position:', ballX, ballY);
+                    console.log('[DEBUG_LOG] Ball target:', ballTargetX, ballTargetY);
+                    
+                    // Pause the game
+                    setTimeout(() => {
+                        console.log('[DEBUG_LOG] Pausing game - ball should stop moving');
+                        pauseGame();
+                        
+                        // Check after pause
+                        setTimeout(() => {
+                            console.log('[DEBUG_LOG] Game paused. Ball position:', ballX, ballY);
+                            console.log('[DEBUG_LOG] Ball target:', ballTargetX, ballTargetY);
+                            console.log('[DEBUG_LOG] Accumulator:', accumulator);
+                            console.log('[DEBUG_LOG] Game paused:', gamePaused);
+                            
+                            // Resume after a bit
+                            setTimeout(() => {
+                                console.log('[DEBUG_LOG] Resuming game - ball should start moving again');
+                                resumeGame();
+                            }, 3000);
+                        }, 1000);
+                    }, 2000);
+                }, 1000);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

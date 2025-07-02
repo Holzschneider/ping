@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Functionality Test - Retro Ping</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <h1 id="title-banderole">BASIC FUNCTIONALITY TEST</h1>
+        <canvas id="game-canvas"></canvas>
+        <div id="scoreboard">
+            <div id="left-player">Player</div>
+            <div id="score">0 : 0</div>
+            <div id="right-player">Computer</div>
+        </div>
+        <div id="start-screen">
+            <p>Testing basic game functionality with fixed timestep</p>
+            <div class="button-container">
+                <button id="start-button">START GAME</button>
+                <button id="share-button">INVITE PLAYER</button>
+            </div>
+        </div>
+        <div id="pause-screen" style="display: none;">
+            <div class="button-container">
+                <button id="resume-button">RESUME</button>
+                <button id="exit-button">EXIT</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="ping.js"></script>
+    <script>
+        // Test basic functionality
+        console.log('[DEBUG_LOG] Testing fixed timestep implementation');
+        console.log('[DEBUG_LOG] FIXED_TIMESTEP:', FIXED_TIMESTEP);
+        console.log('[DEBUG_LOG] Initial accumulator:', accumulator);
+        console.log('[DEBUG_LOG] Initial ball positions - Target:', ballTargetX, ballTargetY, 'Render:', ballX, ballY);
+        
+        // Test that the game can start and run
+        window.addEventListener('load', () => {
+            console.log('[DEBUG_LOG] Page loaded, testing game initialization');
+            
+            // Test game start after a short delay
+            setTimeout(() => {
+                console.log('[DEBUG_LOG] Starting game test');
+                document.getElementById('start-button').click();
+                
+                // Test pause/resume after game starts
+                setTimeout(() => {
+                    console.log('[DEBUG_LOG] Testing pause functionality');
+                    pauseGame();
+                    
+                    setTimeout(() => {
+                        console.log('[DEBUG_LOG] Testing resume functionality');
+                        resumeGame();
+                    }, 2000);
+                }, 3000);
+            }, 1000);
+        });
+        
+        // Monitor for any errors
+        window.addEventListener('error', (e) => {
+            console.error('[DEBUG_LOG] Error detected:', e.message, e.filename, e.lineno);
+        });
+    </script>
+</body>
+</html>

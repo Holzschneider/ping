@@ -27,6 +27,12 @@ let gameRunning = false;
 let gamePaused = false;
 let lastTime = 0;
 
+// Fixed timestep variables
+const FIXED_TIMESTEP = 1000 / 60; // 60 FPS physics
+let accumulator = 0;
+let ballPrevX = 0, ballPrevY = 0;
+let ballTargetX = 0, ballTargetY = 0;
+
 // Networking variables
 let peer;
 let conn;
@@ -254,8 +260,9 @@ function resumeGame() {
         gamePaused = false;
         document.getElementById('pause-screen').style.display = 'none';
         document.getElementById('title-banderole').style.display = 'none';
-        // Reset lastTime to prevent large delta time after pause
+        // Reset lastTime and accumulator to prevent large delta time after pause
         lastTime = 0;
+        accumulator = 0;
 
         // Send resume message to opponent
         if (conn && conn.open) {
@@ -316,6 +323,12 @@ function resetBall() {
     ballX = LOGICAL_COURT_WIDTH / 2;
     ballY = LOGICAL_COURT_HEIGHT / 2;
 
+    // Initialize interpolation variables
+    ballPrevX = ballX;
+    ballPrevY = ballY;
+    ballTargetX = ballX;
+    ballTargetY = ballY;
+
     // Random direction
     ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * BALL_SPEED;
     ballSpeedY = (Math.random() * 2 - 1) * BALL_SPEED;
@@ -372,40 +385,36 @@ function updateAI() {
     aiPaddleY = Math.max(0, Math.min(LOGICAL_COURT_HEIGHT - PADDLE_HEIGHT, aiPaddleY));
 }
 
-// Update ball position and check for collisions
-function updateBall(deltaTime) {
+// Update ball position and check for collisions (fixed timestep)
+function updateBall() {
     if (isClient) return;
 
     // Store previous position for continuous collision detection
-    const prevBallX = ballX;
-    const prevBallY = ballY;
+    ballPrevX = ballTargetX;
+    ballPrevY = ballTargetY;
 
-    // Move the ball (time-based movement)
-    // Convert deltaTime from milliseconds to seconds and multiply by speed
-    // Clamp deltaTime to prevent issues with very large or very small values
-    const clampedDeltaTime = Math.max(0, Math.min(deltaTime, 100)); // Max 100ms per frame
-    const timeMultiplier = clampedDeltaTime / 16.67; // 16.67ms = 60fps baseline
-    ballX += ballSpeedX * timeMultiplier;
-    ballY += ballSpeedY * timeMultiplier;
+    // Move the ball using fixed timestep
+    ballTargetX += ballSpeedX;
+    ballTargetY += ballSpeedY;
 
     // Top and bottom collisions
-    if (ballY < 0 || ballY > LOGICAL_COURT_HEIGHT - BALL_SIZE) {
+    if (ballTargetY < 0 || ballTargetY > LOGICAL_COURT_HEIGHT - BALL_SIZE) {
         ballSpeedY = -ballSpeedY;
-        ballY = ballY < 0 ? 0 : LOGICAL_COURT_HEIGHT - BALL_SIZE;
+        ballTargetY = ballTargetY < 0 ? 0 : LOGICAL_COURT_HEIGHT - BALL_SIZE;
     }
 
     // Player paddle collision with continuous collision detection
     if (ballSpeedX < 0) { // Only check when ball is moving left
         // Check if ball crossed the paddle boundary during this frame
-        if (prevBallX >= PADDLE_WIDTH && ballX < PADDLE_WIDTH &&
-            ballY + BALL_SIZE > playerPaddleY && 
-            ballY < playerPaddleY + PADDLE_HEIGHT) {
+        if (ballPrevX >= PADDLE_WIDTH && ballTargetX < PADDLE_WIDTH &&
+            ballTargetY + BALL_SIZE > playerPaddleY && 
+            ballTargetY < playerPaddleY + PADDLE_HEIGHT) {
 
             ballSpeedX = -ballSpeedX * (1 + BALL_ACCELERATION);
-            ballX = PADDLE_WIDTH; // Position ball at paddle edge to prevent overlap
+            ballTargetX = PADDLE_WIDTH; // Position ball at paddle edge to prevent overlap
 
             // Adjust Y speed based on where the ball hit the paddle
-            const hitPosition = (ballY + BALL_SIZE / 2) - (playerPaddleY + PADDLE_HEIGHT / 2);
+            const hitPosition = (ballTargetY + BALL_SIZE / 2) - (playerPaddleY + PADDLE_HEIGHT / 2);
             ballSpeedY = hitPosition * 0.2;
         }
     }
@@ -414,46 +423,46 @@ function updateBall(deltaTime) {
     if (ballSpeedX > 0) { // Only check when ball is moving right
         const aiPaddleLeft = LOGICAL_COURT_WIDTH - PADDLE_WIDTH;
         // Check if ball crossed the paddle boundary during this frame
-        if (prevBallX + BALL_SIZE <= aiPaddleLeft && ballX + BALL_SIZE > aiPaddleLeft &&
-            ballY + BALL_SIZE > aiPaddleY && 
-            ballY < aiPaddleY + PADDLE_HEIGHT) {
+        if (ballPrevX + BALL_SIZE <= aiPaddleLeft && ballTargetX + BALL_SIZE > aiPaddleLeft &&
+            ballTargetY + BALL_SIZE > aiPaddleY && 
+            ballTargetY < aiPaddleY + PADDLE_HEIGHT) {
 
             ballSpeedX = -ballSpeedX * (1 + BALL_ACCELERATION);
-            ballX = aiPaddleLeft - BALL_SIZE; // Position ball at paddle edge to prevent overlap
+            ballTargetX = aiPaddleLeft - BALL_SIZE; // Position ball at paddle edge to prevent overlap
 
             // Adjust Y speed based on where the ball hit the paddle
-            const hitPosition = (ballY + BALL_SIZE / 2) - (aiPaddleY + PADDLE_HEIGHT / 2);
+            const hitPosition = (ballTargetY + BALL_SIZE / 2) - (aiPaddleY + PADDLE_HEIGHT / 2);
             ballSpeedY = hitPosition * 0.2;
         }
     }
 
     // Scoring
-    if (ballX < 0) {
+    if (ballTargetX < 0) {
         aiScore++;
         updateScore();
         resetBall();
-    } else if (ballX > LOGICAL_COURT_WIDTH) {
+    } else if (ballTargetX > LOGICAL_COURT_WIDTH) {
         playerScore++;
         updateScore();
         resetBall();
     }
 
-    // Send game state to opponent - sending logical coordinates
+    // Send game state to opponent - sending target positions for consistent physics
     if (conn && conn.open) {
         conn.send({
             type: 'state',
-            ballX, ballY,
+            ballX: ballTargetX, ballY: ballTargetY,
             playerScore, aiScore,
             playerPaddleY, aiPaddleY
         });
     }
 
-    // Send game state to spectators - sending logical coordinates
+    // Send game state to spectators - sending target positions for consistent physics
     spectators.forEach(spectator => {
         if (spectator.open) {
             spectator.send({
                 type: 'state',
-                ballX, ballY,
+                ballX: ballTargetX, ballY: ballTargetY,
                 playerScore, aiScore,
                 playerPaddleY, aiPaddleY
             });
@@ -461,8 +470,8 @@ function updateBall(deltaTime) {
     });
 }
 
-// Render the game
-function render() {
+// Render the game with interpolation
+function render(alpha = 1) {
     // Calculate scaling factors for converting logical to canvas coordinates
     const scaleX = canvas.width / LOGICAL_COURT_WIDTH;
     const scaleY = canvas.height / LOGICAL_COURT_HEIGHT;
@@ -487,8 +496,13 @@ function render() {
     // Right paddle (AI or opponent)
     ctx.fillRect(canvas.width - PADDLE_WIDTH * scaleX, aiPaddleY * scaleY, PADDLE_WIDTH * scaleX, PADDLE_HEIGHT * scaleY);
 
-    // Draw ball (convert logical coordinates to canvas coordinates)
+    // Draw ball with interpolation for smooth movement
     ctx.fillStyle = '#fff';
+    if (!isClient) {
+        // Interpolate ball position for smooth rendering
+        ballX = ballPrevX + (ballTargetX - ballPrevX) * alpha;
+        ballY = ballPrevY + (ballTargetY - ballPrevY) * alpha;
+    }
     ctx.fillRect(ballX * scaleX, ballY * scaleY, BALL_SIZE * scaleX, BALL_SIZE * scaleY);
 }
 
@@ -513,6 +527,7 @@ function handleClientData(data) {
             document.getElementById('pause-screen').style.display = 'none';
             document.getElementById('title-banderole').style.display = 'none';
             lastTime = 0;
+            accumulator = 0;
             requestAnimationFrame(gameLoop);
         }
     }
@@ -558,6 +573,7 @@ function handleHostData(data) {
             document.getElementById('pause-screen').style.display = 'none';
             document.getElementById('title-banderole').style.display = 'none';
             lastTime = 0;
+            accumulator = 0;
             requestAnimationFrame(gameLoop);
         }
     }
@@ -677,35 +693,33 @@ function handleTouchStart(e) {
     }
 }
 
-// Main game loop
+// Main game loop with fixed timestep
 function gameLoop(timestamp) {
     if (!gameRunning) return;
 
     // Calculate delta time
     const deltaTime = timestamp - lastTime;
-
-    // Always run at 60fps regardless of device
-    const targetFPS = 60;
-    const frameDelay = 1000 / targetFPS;
-
-    if (deltaTime < frameDelay) {
-        requestAnimationFrame(gameLoop);
-        return;
-    }
-
     lastTime = timestamp;
 
-    // Only update game state if not paused
+    // Only update game state and accumulator if not paused
     if (!gamePaused) {
-        // Update game state
-        if (!isClient) {
-            updateAI();
+        // Add to accumulator, but cap it to prevent spiral of death
+        accumulator += Math.min(deltaTime, 250); // Cap at 250ms to prevent large jumps
+        // Fixed timestep physics updates
+        while (accumulator >= FIXED_TIMESTEP) {
+            if (!isClient) {
+                updateAI();
+                updateBall();
+            }
+            accumulator -= FIXED_TIMESTEP;
         }
-        updateBall(deltaTime);
     }
 
-    // Always render the game (even when paused)
-    render();
+    // Calculate interpolation alpha for smooth rendering
+    const alpha = gamePaused ? 0 : accumulator / FIXED_TIMESTEP;
+
+    // Always render the game (even when paused) with interpolation
+    render(alpha);
 
     // Continue the loop
     requestAnimationFrame(gameLoop);

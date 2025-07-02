@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Timestep Test - Retro Ping</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #debug-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1 id="title-banderole">FIXED TIMESTEP TEST</h1>
+        <canvas id="game-canvas"></canvas>
+        <div id="scoreboard">
+            <div id="left-player">Player</div>
+            <div id="score">0 : 0</div>
+            <div id="right-player">Computer</div>
+        </div>
+        <div id="start-screen">
+            <p>Testing Fixed Timestep Implementation</p>
+            <div class="button-container">
+                <button id="start-button">START TEST</button>
+                <button id="share-button" style="display: none;">INVITE PLAYER</button>
+            </div>
+        </div>
+        <div id="pause-screen" style="display: none;">
+            <div class="button-container">
+                <button id="resume-button">RESUME</button>
+                <button id="exit-button">EXIT</button>
+            </div>
+        </div>
+        <div id="debug-info">
+            <div>FPS: <span id="fps">0</span></div>
+            <div>Physics Updates: <span id="physics-updates">0</span></div>
+            <div>Accumulator: <span id="accumulator">0</span></div>
+            <div>Alpha: <span id="alpha">0</span></div>
+            <div>Ball Target: <span id="ball-target">0, 0</span></div>
+            <div>Ball Render: <span id="ball-render">0, 0</span></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="ping.js"></script>
+    <script>
+        // Debug information tracking
+        let frameCount = 0;
+        let physicsUpdateCount = 0;
+        let lastFpsUpdate = 0;
+        let currentFps = 0;
+
+        // Override the render function to add debug info
+        const originalRender = render;
+        render = function(alpha = 1) {
+            originalRender(alpha);
+            
+            // Update debug info
+            frameCount++;
+            const now = performance.now();
+            
+            if (now - lastFpsUpdate >= 1000) {
+                currentFps = frameCount;
+                frameCount = 0;
+                lastFpsUpdate = now;
+            }
+            
+            document.getElementById('fps').textContent = currentFps;
+            document.getElementById('accumulator').textContent = accumulator.toFixed(2);
+            document.getElementById('alpha').textContent = alpha.toFixed(3);
+            document.getElementById('ball-target').textContent = `${ballTargetX.toFixed(1)}, ${ballTargetY.toFixed(1)}`;
+            document.getElementById('ball-render').textContent = `${ballX.toFixed(1)}, ${ballY.toFixed(1)}`;
+        };
+
+        // Override updateBall to track physics updates
+        const originalUpdateBall = updateBall;
+        updateBall = function() {
+            physicsUpdateCount++;
+            document.getElementById('physics-updates').textContent = physicsUpdateCount;
+            return originalUpdateBall();
+        };
+
+        // Auto-start the game for testing
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('start-button').click();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
